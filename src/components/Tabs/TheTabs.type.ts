@@ -6,3 +6,8 @@ export interface TheTabsContext {
 }
 
 export type TabLabel = string | VNode;
+
+export type TabLabels = {
+	label: TabLabel;
+	tabId: string;
+}[];

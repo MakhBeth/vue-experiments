@@ -13,10 +13,28 @@ defineProps<{
   <div
     aria-labelledby="{`button-${id}`}"
     role="tabpanel"
-    key="{id}"
-    id="{id}"
+    :key="id"
+    :id="id"
     :hidden="activeTab !== id"
   >
     <slot />
   </div>
 </template>
+
+<style scoped>
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[role='tabpanel'] {
+  animation: fadeIn var(--timing-fast) ease-in-out;
+  margin-bottom: var(--spacing-md);
+}
+</style>

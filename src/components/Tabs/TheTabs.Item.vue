@@ -6,9 +6,10 @@ defineProps<{
 }>()
 defineSlots<{
   label: () => VNode | VNode[]
+  default: () => VNode | VNode[]
 }>()
 </script>
 
 <template>
-  <div>a</div>
+  <slot />
 </template>

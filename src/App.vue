@@ -6,12 +6,11 @@ import { Tabs } from './components/Tabs'
 <template>
   <Tabs>
     <Tabs.Item>
-      <template #label>
-        <TheBadge>Tab 1</TheBadge>
-      </template>
+      <template #label> This is a <TheBadge variant="positive">Tab 1</TheBadge> </template>
       Tab 1 content
     </Tabs.Item>
     <Tabs.Item label="Tab 2"> Tab 2 content </Tabs.Item>
     <Tabs.Item label="Tab 3"> Tab 3 content </Tabs.Item>
+    Not a tab content, <em>but it will be rendered</em>
   </Tabs>
 </template>
