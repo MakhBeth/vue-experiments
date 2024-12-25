@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { inject } from 'vue'
+import { inject, watch, defineEmits } from 'vue'
 import type { CSSProperties } from 'vue'
 import type { TheTabsContext } from './TheTabs.type'
+import { useTemplateRef } from 'vue'
+import { useCSSSupports } from '@/composables/useCSSSupports'
+import { onMounted } from 'vue'
 
 const props = defineProps<{
   id: string
+}>()
+
+const emit = defineEmits<{
+  anchor: [element: HTMLButtonElement]
 }>()
 
 const { activeTab, setActiveTab } = inject<TheTabsContext>('tabsContext') || {}
@@ -17,10 +24,28 @@ const handleClick = () => {
 const buttonStyle = {
   'anchor-name': `--tab-${props.id}`,
 } as CSSProperties
+
+const supportsAnchorName = useCSSSupports('(anchor-name: --a)')
+const buttonRef = useTemplateRef<HTMLButtonElement>('buttonRef')
+
+const emitAnchor = (anchor: HTMLButtonElement | null) => {
+  if (activeTab?.value === props.id && anchor && !supportsAnchorName.value) {
+    emit('anchor', anchor)
+  }
+}
+onMounted(() => {
+  emitAnchor(buttonRef.value)
+})
+
+watch(
+  () => activeTab?.value,
+  () => emitAnchor(buttonRef.value),
+)
 </script>
 
 <template>
   <button
+    ref="buttonRef"
     role="tab"
     :aria-selected="activeTab === id"
     :aria-controls="id"
@@ -44,22 +69,17 @@ const buttonStyle = {
   min-height: calc(42rem / 16);
   transition: all var(--timing-fast) ease-in-out;
 
-  &:hover {
+  &:hover:not([aria-selected='true']) {
     background-color: light-dark(var(--color-gray-1), var(--color-gray-15));
   }
 
   &[aria-selected='true'] {
-    background-color: light-dark(var(--color-gray-15), var(--color-gray-1));
     color: light-dark(var(--color-gray-0), var(--color-gray-15));
   }
 
   &:focus-visible {
     outline: 2px solid light-dark(var(--color-gray-8), var(--color-gray-2));
     outline-offset: 2px;
-  }
-
-  @supports (anchor-name: --a) {
-    background: transparent !important;
   }
 }
 </style>

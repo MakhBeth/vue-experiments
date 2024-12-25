@@ -4,6 +4,12 @@ import type { TabLabels } from './TheTabs.type'
 import Button from './TheTabs.Button.vue'
 import type { TheTabsContext } from './TheTabs.type'
 import { inject } from 'vue'
+import { useDebouncedResize } from '@/composables/useDebouncedResize'
+import { useCSSSupports } from '@/composables/useCSSSupports'
+import { useTemplateRef } from 'vue'
+import { ref } from 'vue'
+import { watch } from 'vue'
+import type { CSSProperties } from 'vue'
 
 defineProps<{
   tabsLabels: TabLabels
@@ -38,16 +44,44 @@ const handleKeyDown = computed(() => (event: KeyboardEvent) => {
   next.focus()
   event.preventDefault()
 })
+
+const supportsAnchorName = useCSSSupports('(anchor-name: --a)')
+const width = useDebouncedResize()
+const tabsListRef = useTemplateRef<HTMLDivElement>('tabsListRef')
+const activeButtonElement = ref<HTMLButtonElement | null>(null)
+
+const handleAnchor = (anchor: HTMLButtonElement) => {
+  activeButtonElement.value = anchor
+}
+
+const tabButtonStyleFallback = ref<CSSProperties>({})
+
+watch([width, activeButtonElement], () => {
+  const buttonRect = activeButtonElement.value?.getBoundingClientRect()
+  const parentRect = tabsListRef.value?.getBoundingClientRect()
+
+  if (buttonRect && parentRect) {
+    const relativeRect = {
+      '--tab-button-top': `${buttonRect.top - parentRect.top}px`,
+      '--tab-button-left': `${buttonRect.left - parentRect.left}px`,
+      '--tab-button-width': `${buttonRect.width}px`,
+      '--tab-button-height': `${buttonRect.height}px`,
+    }
+    tabButtonStyleFallback.value = relativeRect
+  }
+})
 </script>
 
 <template>
   <div
     role="tablist"
     class="tabslist"
+    :class="{ 'no-support-anchor-name': !supportsAnchorName }"
     @keydown="handleKeyDown"
-    :style="{ '--active-tab': `--tab-${activeTab}` }"
+    :style="{ '--active-tab': `--tab-${activeTab}`, ...tabButtonStyleFallback }"
+    ref="tabsListRef"
   >
-    <Button v-for="{ label, tabId } in tabsLabels" :id="tabId" :key="tabId">
+    <Button @anchor="handleAnchor" v-for="{ label, tabId } in tabsLabels" :id="tabId" :key="tabId">
       <div v-if="typeof label === 'string'">{{ label }}</div>
       <div v-else><component :is="label" /></div>
     </Button>
@@ -74,6 +108,13 @@ const handleKeyDown = computed(() => (event: KeyboardEvent) => {
     view-transition-name: target;
     width: anchor-size(var(--active-tab) width);
     z-index: -1;
+  }
+
+  &.no-support-anchor-name::before {
+    width: var(--tab-button-width);
+    left: var(--tab-button-left);
+    top: var(--tab-button-top);
+    height: var(--tab-button-height);
   }
 }
 </style>

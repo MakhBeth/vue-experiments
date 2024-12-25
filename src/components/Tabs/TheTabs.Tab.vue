@@ -11,8 +11,8 @@ defineProps<{
 
 <template>
   <div
-    aria-labelledby="{`button-${id}`}"
     role="tabpanel"
+    :aria-labelledby="`button-${id}`"
     :key="id"
     :id="id"
     :hidden="activeTab !== id"
