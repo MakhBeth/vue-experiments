@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { inject } from 'vue'
+import type { CSSProperties } from 'vue'
 import type { TheTabsContext } from './TheTabs.type'
 
 const props = defineProps<{
@@ -12,6 +13,10 @@ const handleClick = () => {
   if (!setActiveTab) return
   setActiveTab(props.id)
 }
+
+const buttonStyle = {
+  'anchor-name': `--tab-${props.id}`,
+} as CSSProperties
 </script>
 
 <template>
@@ -21,6 +26,7 @@ const handleClick = () => {
     :aria-controls="id"
     :id="`button-${id}`"
     @click="handleClick"
+    :style="buttonStyle"
   >
     <slot />
   </button>
@@ -50,6 +56,10 @@ const handleClick = () => {
   &:focus-visible {
     outline: 2px solid light-dark(var(--color-gray-8), var(--color-gray-2));
     outline-offset: 2px;
+  }
+
+  @supports (anchor-name: --a) {
+    background: transparent !important;
   }
 }
 </style>
