@@ -18,10 +18,21 @@ const validChildren = computed(() => {
 })
 
 const tabsLabels = computed(() =>
-  validChildren.value.map((child) => ({
-    label: child?.props?.label,
-    tabId: child?.id,
-  })),
+  validChildren.value.map((child) => {
+    if (child.props && 'label' in child.props) {
+      return {
+        label: child.props.label,
+        tabId: child.id,
+      }
+    }
+    if (typeof child.children !== 'string' && !Array.isArray(child.children)) {
+      return {
+        label: child.children?.label,
+        tabId: child.id,
+      }
+    }
+    throw new Error('Pass a valid label plz')
+  }),
 )
 
 const setActiveTab = (tabId: string) => {
@@ -33,13 +44,16 @@ provide<TheTabsContext>('tabsContext', {
   setActiveTab,
 })
 
-console.log(1, { validChildren: validChildren.value, tabsLabels: tabsLabels.value })
-
 defineExpose({
   Item: TabItem,
 })
 </script>
 
 <template>
-  <div class="tabs">{{ tabsLabels }}</div>
+  <div class="tabs">
+    <div v-for="{ label, tabId } in tabsLabels" :key="tabId">
+      <div v-if="typeof label === 'string'">{{ label }}</div>
+      <div v-else><component :is="label" /></div>
+    </div>
+  </div>
 </template>

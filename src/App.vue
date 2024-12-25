@@ -4,9 +4,14 @@ import { Tabs } from './components/Tabs'
 </script>
 
 <template>
-  <TheBadge>Positive</TheBadge>
   <Tabs>
-    <Tabs.Item label="Tab 1">Tab 1</Tabs.Item>
-    <Tabs.Item label="Tab 21">Tab 2</Tabs.Item>
+    <Tabs.Item>
+      <template #label>
+        <TheBadge>Tab 1</TheBadge>
+      </template>
+      Tab 1 content
+    </Tabs.Item>
+    <Tabs.Item label="Tab 2"> Tab 2 content </Tabs.Item>
+    <Tabs.Item label="Tab 3"> Tab 3 content </Tabs.Item>
   </Tabs>
 </template>
